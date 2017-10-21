@@ -1,0 +1,79 @@
+/*
+ * BTconfig.c
+ *
+ *  Created on: Oct 18, 2017
+ *      Author: lautaro
+ */
+#include "chip.h"
+#include "board.h"
+
+#define UARTx_IRQn  USART2_IRQn
+#define UARTx_IRQHandler UART2_IRQHandler
+//#define _GPDMA_CONN_UART_Tx GPDMA_CONN_UART0_Tx
+//#define _GPDMA_CONN_UART_Rx GPDMA_CONN_UART0_Rx
+
+/* Transmit and receive ring buffers */
+STATIC RINGBUFF_T txring, rxring;
+
+/* Ring buffer size */
+#define UART_RB_SIZE 256
+
+/* Transmit and receive buffers */
+static uint8_t rxbuff[UART_RB_SIZE], txbuff[UART_RB_SIZE];
+
+/* Initialize Interrupt for UART */
+static void App_Interrupt_Init(void)
+{
+	/* Enable UART Rx & line status interrupts */
+	/*
+	 * Do not enable transmit interrupt here, since it is handled by
+	 * UART_Send() function, just to reset Tx Interrupt state for the
+	 * first time
+	 */
+	Chip_UART_IntEnable(LPC_USART2, (UART_IER_RBRINT | UART_IER_RLSINT));
+
+	/* Before using the ring buffers, initialize them using the ring
+	   buffer init function */
+	RingBuffer_Init(&rxring, rxbuff, 1, UART_RB_SIZE);
+	RingBuffer_Init(&txring, txbuff, 1, UART_RB_SIZE);
+
+	/* Enable Interrupt for UART channel */
+	/* Priority = 1 */
+	NVIC_SetPriority(UARTx_IRQn, 1);
+	/* Enable Interrupt for UART channel */
+	NVIC_EnableIRQ(UARTx_IRQn);
+}
+/**
+ * @brief	UART interrupt handler sub-routine
+ * @return	Nothing
+ */
+void UARTx_IRQHandler(void)
+{
+	Chip_UART_IRQRBHandler(LPC_USART2, &rxring, &txring);
+}
+
+int main(void)
+{
+	uint8_t buffer[10];
+	char mistr[]="t";
+	SystemCoreClockUpdate();
+	Board_Init();
+	Board_UART_Init(LPC_USART2);
+	Chip_UART_SetBaud(LPC_USART2, 4800);
+	Chip_UART_ConfigData(LPC_USART2, UART_LCR_WLEN8 | UART_LCR_SBS_1BIT); /* Default 8-N-1 */
+
+	/* Enable UART Transmit */
+	Chip_UART_TXEnable(LPC_USART2);
+	//App_Interrupt_Init();
+	while (1)
+	{
+		Chip_UART_Send(LPC_USART2, "t", sizeof("t"));
+	}
+	/* Wait for current transmission complete - THR must be empty */
+	while (Chip_UART_CheckBusy(LPC_USART2) == SET) {}
+
+	/* DeInitialize UART0 peripheral */
+	Chip_UART_DeInit(LPC_USART2);
+
+	return 0;
+}

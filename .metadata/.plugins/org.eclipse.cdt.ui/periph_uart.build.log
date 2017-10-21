@@ -1,0 +1,16 @@
+11:12:48 **** Incremental Build of configuration Debug for project periph_uart ****
+make -r all 
+Building target: periph_uart.axf
+Invoking: MCU Linker
+arm-none-eabi-gcc -nostdlib -L"/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug" -L"/home/lautaro/GitHub/BTCONFIG/lpc_board_nxp_lpcxpresso_4337/Debug" -Xlinker -Map="periph_uart.map" -Xlinker --gc-sections -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "periph_uart_Debug.ld" -o "periph_uart.axf"  ./example/src/cr_startup_lpc43xx.o ./example/src/sysinit.o ./example/src/uart.o   -llpc_board_nxp_lpcxpresso_4337 -llpc_chip_43xx
+/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug/liblpc_chip_43xx.a(clock_18xx_43xx.o): In function `Chip_Clock_EnableCrystal':
+makefile:30: recipe for target 'periph_uart.axf' failed
+/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug/../src/clock_18xx_43xx.c:249: undefined reference to `OscRateIn'
+/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug/liblpc_chip_43xx.a(clock_18xx_43xx.o): In function `Chip_Clock_GetClockInputHz':
+/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug/../src/clock_18xx_43xx.c:544: undefined reference to `ExtRateIn'
+/home/lautaro/GitHub/BTCONFIG/lpc_chip_43xx/Debug/../src/clock_18xx_43xx.c:544: undefined reference to `OscRateIn'
+collect2: error: ld returned 1 exit status
+make: *** [periph_uart.axf] Error 1
+
+11:12:49 Build Finished (took 769ms)
+
