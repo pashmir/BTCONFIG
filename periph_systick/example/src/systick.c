@@ -76,16 +76,16 @@ void USARTconfig()
 	NVIC_SetPriority(USART2_IRQn, 1);
 	/* Enable Interrupt for UART channel */
 	NVIC_EnableIRQ(USART2_IRQn);
-	Chip_UART_Init(LPC_USART0);
-	Chip_UART_SetBaud(LPC_USART0, 38400);  /* Set Baud rate */
-	Chip_UART_SetupFIFOS(LPC_USART0, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0); /* Modify FCR (FIFO Control Register)*/
-	Chip_UART_TXEnable(LPC_USART0); /* Enable UART Transmission */
-	Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
+	Chip_UART_Init(LPC_USART3);
+	Chip_UART_SetBaud(LPC_USART3, 38400);  /* Set Baud rate */
+	Chip_UART_SetupFIFOS(LPC_USART3, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0); /* Modify FCR (FIFO Control Register)*/
+	Chip_UART_TXEnable(LPC_USART3); /* Enable UART Transmission */
+	Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
 	/* Enable Interrupt for UART channel */
 	/* Priority = 1 */
-	NVIC_SetPriority(USART0_IRQn, 1);
+	NVIC_SetPriority(USART3_IRQn, 1);
 	/* Enable Interrupt for UART channel */
-	NVIC_EnableIRQ(USART0_IRQn);
+	NVIC_EnableIRQ(USART3_IRQn);
 }
 
 /**
@@ -151,18 +151,18 @@ int SendTillEOL(LPC_USART_T *pUART, void *data, int numBytes)
 
 void UART2_IRQHandler()
 {
-	Chip_UART_IntDisable(LPC_USART0, UART_IER_RBRINT);
+	Chip_UART_IntDisable(LPC_USART3, UART_IER_RBRINT);
 	USART2_IRQ_flag=true;
 	ReadTillEOL(LPC_USART2,recibido2,sizeof(recibido2));
 	Chip_UART_IntDisable(LPC_USART2, UART_IER_RBRINT);
 	Board_LED_Toggle(3);
 }
-void UART0_IRQHandler()
+void UART3_IRQHandler()
 {
 	Chip_UART_IntDisable(LPC_USART2, UART_IER_RBRINT);
 	USART0_IRQ_flag=true;
-	ReadTillEOL(LPC_USART0,recibido0,sizeof(recibido0));
-	Chip_UART_IntDisable(LPC_USART0, UART_IER_RBRINT);
+	ReadTillEOL(LPC_USART3,recibido0,sizeof(recibido0));
+	Chip_UART_IntDisable(LPC_USART3, UART_IER_RBRINT);
 }
 
 /**
@@ -198,7 +198,7 @@ int main(void)
 	                   !SysTick_CTRL_ENABLE_Msk;
 
 	Board_UART_Init(LPC_USART2);
-	Board_UART_Init(LPC_USART0);
+	Board_UART_Init(LPC_USART3);
 	USARTconfig();
 
 
@@ -251,13 +251,13 @@ int main(void)
 			}
 			for (i=0;i<read;i++)
 			{
-				Chip_UART_SendByte(LPC_USART0,recibido2[i]);
+				Chip_UART_SendByte(LPC_USART3,recibido2[i]);
 			}
 			for (i=0;i<sizeof(recibido2);i++)
 			{
 				recibido2[i]=0;
 			}
-			Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
+			Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
 			Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
 		}
 		if (USART0_IRQ_flag)
@@ -276,7 +276,7 @@ int main(void)
 				recibido0[i]=0;
 			}
 			Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
-			Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
+			Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
 		}
 		__WFI();
 	}
